@@ -1,0 +1,33 @@
+.produtos-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  width: 100%;
+}
+
+.actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 3rem;
+  border-radius: 0.25rem 0.25rem 0 0;
+//   margin-bottom: 16px;
+  gap: 12px;
+  background-color: #003263;
+  color: #fff;
+
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  input {
+    background-color: #fff;
+    width: 400px;
+    border-radius: 0.5rem;
+  }
+}
+
+.custom-table {
+  width: 100%;
+}

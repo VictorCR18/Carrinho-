@@ -1,0 +1,20 @@
+import express from "express";
+import cors from "cors";
+import router from "@/app/router";
+
+const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+app.use(express.json());
+app.use(router);
+
+app.get("/hello", (req, res) => {
+  res.json({ message: "Backend funcionando!" });
+});
+
+export default app;
