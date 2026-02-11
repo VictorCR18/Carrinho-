@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ProdutoRepository } from "@/app/repository/ProdutoRepository";
+import { ProdutoRepository } from "../repository/ProdutoRepository";
 
 const repository = new ProdutoRepository();
 

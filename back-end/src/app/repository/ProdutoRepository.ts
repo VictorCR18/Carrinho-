@@ -1,5 +1,5 @@
-import prisma from "@/config/database/connection";
-import { Produto } from "@/app/model/Produto";
+import prisma from "./../../config/database/connection";
+import { Produto } from "../model/Produto";
 
 export class ProdutoRepository {
   async findAll() {
