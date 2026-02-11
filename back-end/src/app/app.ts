@@ -6,7 +6,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://carrinho-seven.vercel.app"],
+    origin: [
+      "http://localhost:5173",
+      "https://carrinho-seven.vercel.app",
+      "https://carrinho-frontend-p78684rdk.vercel.app",
+    ],
     credentials: true,
   }),
 );
