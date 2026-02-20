@@ -21,10 +21,10 @@ type Props = {
   produto: Produto;
 };
 
-export default function Card({ produto }: Props) {
+export default function ProdutoCard({ produto }: Props) {
   const { addToCart } = useCart();
   const navigate = useNavigate();
-  
+
   const [openSnackbar, setOpenSnackbar] = useState(false);
 
   const semEstoque = produto.quantidade <= 0;
@@ -42,7 +42,7 @@ export default function Card({ produto }: Props) {
 
   const handleCloseSnackbar = (
     _event?: React.SyntheticEvent | Event,
-    reason?: string
+    reason?: string,
   ) => {
     if (reason === "clickaway") {
       return;

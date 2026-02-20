@@ -1,4 +1,3 @@
-/* src/pages/ProdutosPage/styles.scss */
 .produtos-page {
   max-width: 1200px;
   margin: 0 auto;
@@ -13,7 +12,6 @@
     padding: 20px 32px;
     margin-bottom: 32px;
     border-radius: 12px;
-    /* Substitui a cor sólida por um gradiente premium */
     background: linear-gradient(135deg, #003263 0%, #00509e 100%);
     color: #fff;
     box-shadow: 0 8px 20px rgba(0, 50, 99, 0.15);
@@ -35,7 +33,6 @@
         border-radius: 8px;
         transition: all 0.3s ease;
 
-        /* Remove a borda padrão do input para ficar mais limpo */
         fieldset {
           border: none;
         }
@@ -46,7 +43,6 @@
       }
     }
 
-    /* Responsividade para celulares */
     @media (max-width: 768px) {
       flex-direction: column;
       align-items: stretch;
@@ -87,7 +83,6 @@
       border-bottom: 1px solid #f1f5f9;
     }
 
-    /* Transição suave ao passar o mouse na linha */
     tr.MuiTableRow-hover:hover {
       background-color: #f8fafc;
     }

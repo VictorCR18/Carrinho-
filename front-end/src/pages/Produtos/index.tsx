@@ -11,7 +11,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import type { Produto } from "../../types/types";
 import { ProdutoService } from "../../shared/api/services/ProdutoService";
-import Card from "./components/Card";
+import ProdutoCard from "./components/ProdutoCard";
 import "./styles.scss";
 
 const produtoService = new ProdutoService();
@@ -101,7 +101,7 @@ export default function Produtos() {
             </Typography>
             <div className="produtos-grid">
               {produtosFiltrados.map((p) => (
-                <Card key={p.id} produto={p} />
+                <ProdutoCard key={p.id} produto={p} />
               ))}
             </div>
           </Box>
@@ -121,7 +121,7 @@ export default function Produtos() {
                 {produtos
                   .filter((p) => p.categoria === categoria)
                   .map((p) => (
-                    <Card key={p.id} produto={p} />
+                    <ProdutoCard key={p.id} produto={p} />
                   ))}
               </div>
             </Box>

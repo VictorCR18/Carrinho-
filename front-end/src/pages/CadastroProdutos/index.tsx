@@ -104,7 +104,6 @@ export default function ProdutosPage() {
     }
   };
 
-  // BUSCA SEGURA: previne que a tela quebre se 'p.nome' vier vazio do banco
   const filtered = produtos.filter((p) =>
     (p.nome || "").toLowerCase().includes((search || "").toLowerCase()),
   );
@@ -132,7 +131,6 @@ export default function ProdutosPage() {
 
   return (
     <Box className="produtos-page">
-      {/* HEADER MODERNO */}
       <Box className="actions-bar">
         <Typography variant="h5" component="h2">
           Gerenciar Produtos
@@ -167,7 +165,6 @@ export default function ProdutosPage() {
         </div>
       </Box>
 
-      {/* TABELA COM ELEVAÇÃO E HOVER */}
       <TableContainer component={Paper} className="custom-table">
         <Table>
           <TableHead>
@@ -207,7 +204,6 @@ export default function ProdutosPage() {
                 </TableSortLabel>
               </TableCell>
 
-              {/* NOVA COLUNA ESTOQUE */}
               <TableCell>Estoque</TableCell>
 
               <TableCell align="center">Ações</TableCell>
