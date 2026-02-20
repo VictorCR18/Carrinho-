@@ -2,7 +2,7 @@
 .navbar-container {
   border-bottom: 1px solid #f1f5f9;
   background-color: rgba(255, 255, 255, 0.9) !important;
-  backdrop-filter: blur(12px); /* Efeito de vidro moderno */
+  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   z-index: 1000;
   transition: all 0.3s ease;
@@ -12,17 +12,17 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 80px; /* Altura fixa para manter consistência */
+    height: 80px;
   }
 
   .logo-link {
     display: flex;
     align-items: center;
     text-decoration: none;
-    flex: 1; /* Ocupa espaço para centralizar os links */
+    flex: 1; 
 
     .logo {
-      max-width: 72px; /* Ajuste conforme o tamanho real da sua logo */
+      max-width: 72px;
       height: auto;
       transition: transform 0.3s ease;
 
@@ -48,7 +48,6 @@
       transition: color 0.3s ease;
       padding: 0.5rem 0;
 
-      /* Animação do sublinhado (Slide In) */
       &::after {
         content: "";
         position: absolute;
@@ -56,7 +55,7 @@
         height: 3px;
         bottom: 0;
         left: 0;
-        background-color: #1976d2; /* Cor primária do MUI */
+        background-color: #1976d2; 
         border-radius: 4px;
         transition: width 0.3s ease;
       }
@@ -68,7 +67,6 @@
         }
       }
 
-      /* Estilo de página ativa */
       &.active {
         color: #1976d2;
         &::after {
@@ -82,7 +80,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    flex: 1; /* Ocupa espaço para equilibrar com a logo */
+    flex: 1;
 
     .MuiIconButton-root {
       transition:
@@ -96,14 +94,13 @@
     }
   }
 
-  /* Responsividade para celulares e tablets pequenos */
   @media (max-width: 768px) {
     .toolbar {
       height: 70px;
     }
 
     .logo-link .logo {
-      max-width: 80px;
+      max-width: 60px;
     }
 
     .nav-links {
