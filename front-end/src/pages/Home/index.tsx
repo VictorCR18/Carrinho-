@@ -52,7 +52,9 @@ export default function Home() {
       <Container maxWidth="lg" sx={{ py: 6 }}>
         <Categorias categorias={categoriasComProduto} />
         <Box my={6} />
-        <Ofertas ofertas={ofertas} />
+        <div id="ofertas">
+          <Ofertas ofertas={ofertas} />
+        </div>
       </Container>
     </Box>
   );

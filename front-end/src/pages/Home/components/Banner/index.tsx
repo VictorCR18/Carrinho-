@@ -12,7 +12,12 @@ export default function Banner() {
         <Typography variant="h6" className="banner-subtitle">
           Ofertas exclusivas e qualidade que você merece.
         </Typography>
-        <Button variant="contained" size="large" className="banner-button">
+        <Button
+          variant="contained"
+          size="large"
+          className="banner-button"
+          href="#ofertas"
+        >
           Ver Ofertas
         </Button>
       </Box>
