@@ -9,5 +9,8 @@ router.get("/produtos/:id", controller.getById);
 router.post("/produtos", controller.create);
 router.put("/produtos/:id", controller.update);
 router.delete("/produtos/:id", controller.delete);
+router.patch("/produtos/:id/adicionar-estoque", controller.adicionarEstoque);
+router.patch("/produtos/:id/diminuir-estoque", controller.diminuirEstoque);
+router.post("/checkout", controller.checkout);
 
 export default router;
