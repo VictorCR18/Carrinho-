@@ -4,6 +4,7 @@ import CadastroProdutos from "../pages/CadastroProdutos";
 import Carrinho from "../pages/Carrinho";
 import Produtos from "../pages/Produtos";
 import { CartProvider } from "../shared/components/CardContext";
+import DetalhesProduto from "../pages/DetalhesProduto";
 
 export default function Router() {
   return (
@@ -13,6 +14,7 @@ export default function Router() {
         <Route path="/produtos" element={<Produtos />} />
         <Route path="/produtos/cadastrar" element={<CadastroProdutos />} />
         <Route path="/carrinho" element={<Carrinho />} />
+        <Route path="/produtos/:id" element={<DetalhesProduto />} />
       </Routes>
     </CartProvider>
   );

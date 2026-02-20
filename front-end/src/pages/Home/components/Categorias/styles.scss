@@ -1,20 +1,50 @@
 .categorias-section {
   .categorias-grid {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 30px;
     justify-content: center;
   }
 
   .categoria-card {
-    flex: 1 1 200px;
-    max-width: 250px;
     cursor: pointer;
-    border-radius: 12px;
-    transition: transform 0.2s ease;
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    background: #fff;
+    opacity: 0;
+    animation: fadeInUp 0.6s ease forwards;
 
     &:hover {
-      transform: scale(1.05);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+
+      .categoria-img {
+        transform: scale(1.1); 
+      }
+
+      h6 {
+        color: #faa302; 
+      }
     }
+
+    .categoria-img {
+      height: 180px;
+      object-fit: contain;
+      padding: 1rem;
+      transition: transform 0.4s ease;
+    }
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

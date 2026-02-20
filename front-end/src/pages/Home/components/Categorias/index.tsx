@@ -11,32 +11,37 @@ export default function Categorias({ categorias }: Props) {
   const navigate = useNavigate();
 
   return (
-    <Box px={10} py={4} className="categorias-section">
-      <Typography variant="h4" mb={3}>
-        Categorias
+    <Box className="categorias-section">
+      <Typography variant="h4" fontWeight="bold" textAlign="center" mb={5}>
+        Explore por Categorias
       </Typography>
       <div className="categorias-grid">
-        {categorias.map((prod) => (
+        {categorias.map((prod, index) => (
           <Card
             key={prod.categoria}
             className="categoria-card"
+            style={{ animationDelay: `${index * 0.1}s` }} 
             onClick={() => navigate(`/produtos?categoria=${prod.categoria}`)}
           >
-            {prod.imagem && (
-              <CardMedia
-                component="img"
-                height="200"
-                image={prod.imagem}
-                alt={prod.categoria}
-                sx={{
-                  objectFit: "contain",
-                  width: "100%",
-                  height: 180,
-                }}
-              />
-            )}
+            <Box overflow="hidden">
+              {prod.imagem ? (
+                <CardMedia
+                  className="categoria-img"
+                  component="img"
+                  image={prod.imagem}
+                  alt={prod.categoria}
+                />
+              ) : (
+                <Box height={180} bgcolor="#f5f5f5" />
+              )}
+            </Box>
             <CardContent>
-              <Typography align="center" fontWeight="bold">
+              <Typography
+                align="center"
+                variant="h6"
+                fontWeight="600"
+                color="text.secondary"
+              >
                 {prod.categoria}
               </Typography>
             </CardContent>

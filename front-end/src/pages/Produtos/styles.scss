@@ -1,41 +1,20 @@
-.produtos-cards-page {
-  padding: 2rem 12rem;
-  display: flex;
-  flex-direction: column;
+.produtos-page {
+  background-color: #fcfcfc;
+  min-height: 80vh;
 
-  .header {
-    display: flex;
-    gap: 12rem;
-    justify-content: center;
-    align-items: start;
+  .produtos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 30px;
+    align-items: stretch;
   }
 
-  > div > h4 {
-    margin-bottom: 1.5rem;
-    text-align: end;
-    font-weight: 600;
-    color: #333;
+  .fade-in {
+    animation: fadeIn 0.5s ease-in-out forwards;
   }
+}
 
-  > div > h5 {
-    margin-bottom: 1rem;
-    font-weight: 500;
-    color: #555;
-  }
-
-  .grid-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    justify-content: flex-start;
-
-    @media (max-width: 1200px) {
-      justify-content: center;
-    }
-
-    @media (max-width: 768px) {
-      justify-content: center;
-      gap: 1rem;
-    }
-  }
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

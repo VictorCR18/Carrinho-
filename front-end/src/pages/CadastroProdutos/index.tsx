@@ -16,8 +16,11 @@ import {
   TextField,
   TablePagination,
   TableSortLabel,
+  Typography,
+  InputAdornment,
+  Chip,
 } from "@mui/material";
-import { Edit, Delete } from "@mui/icons-material";
+import { Edit, Delete, Search, Add } from "@mui/icons-material";
 import type { Produto } from "../../types/types";
 import Modal from "./components/Modal";
 import { ProdutoService } from "../../shared/api/services/ProdutoService";
@@ -43,7 +46,7 @@ export default function ProdutosPage() {
     async function fetchProdutos() {
       try {
         const data = await produtoService.list();
-        setProdutos(data);
+        setProdutos(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
       }
@@ -56,7 +59,7 @@ export default function ProdutosPage() {
       if (produto.id) {
         const atualizado = await produtoService.update(produto, produto.id);
         setProdutos((prev) =>
-          prev.map((p) => (p.id === atualizado.id ? atualizado : p))
+          prev.map((p) => (p.id === atualizado.id ? atualizado : p)),
         );
       } else {
         const novo = await produtoService.create(produto);
@@ -70,7 +73,8 @@ export default function ProdutosPage() {
   };
 
   const handleDelete = async (id?: number) => {
-    if (!id) return;
+    if (!id || !window.confirm("Deseja realmente excluir este produto?"))
+      return;
     try {
       await produtoService.delete(id);
       setProdutos((prev) => prev.filter((p) => p.id !== id));
@@ -100,15 +104,16 @@ export default function ProdutosPage() {
     }
   };
 
+  // BUSCA SEGURA: previne que a tela quebre se 'p.nome' vier vazio do banco
   const filtered = produtos.filter((p) =>
-    p.nome.toLowerCase().includes(search.toLowerCase())
+    (p.nome || "").toLowerCase().includes((search || "").toLowerCase()),
   );
 
   const sorted =
     order && orderBy
       ? [...filtered].sort((a, b) => {
-          const aValue = a[orderBy];
-          const bValue = b[orderBy];
+          const aValue = a[orderBy] ?? "";
+          const bValue = b[orderBy] ?? "";
 
           if (typeof aValue === "number" && typeof bValue === "number") {
             return order === "asc" ? aValue - bValue : bValue - aValue;
@@ -122,23 +127,36 @@ export default function ProdutosPage() {
 
   const paginated = sorted.slice(
     page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
+    page * rowsPerPage + rowsPerPage,
   );
 
   return (
     <Box className="produtos-page">
+      {/* HEADER MODERNO */}
       <Box className="actions-bar">
-        <h2>Gerenciar Produtos</h2>
+        <Typography variant="h5" component="h2">
+          Gerenciar Produtos
+        </Typography>
         <div className="actions">
           <TextField
-            placeholder="Buscar"
+            className="search-input"
+            placeholder="Buscar produto..."
             size="small"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search color="action" />
+                </InputAdornment>
+              ),
+            }}
           />
           <Button
             variant="contained"
             color="secondary"
+            startIcon={<Add />}
+            sx={{ fontWeight: "bold", px: 3 }}
             onClick={() => {
               setSelectedProduto(null);
               setOpen(true);
@@ -149,10 +167,12 @@ export default function ProdutosPage() {
         </div>
       </Box>
 
+      {/* TABELA COM ELEVAÇÃO E HOVER */}
       <TableContainer component={Paper} className="custom-table">
         <Table>
           <TableHead>
             <TableRow>
+              <TableCell>Imagem</TableCell>
               <TableCell
                 sortDirection={orderBy === "nome" ? order || false : false}
               >
@@ -186,62 +206,90 @@ export default function ProdutosPage() {
                   Preço
                 </TableSortLabel>
               </TableCell>
-              <TableCell
-                sortDirection={orderBy === "descricao" ? order || false : false}
-              >
-                <TableSortLabel
-                  active={orderBy === "descricao"}
-                  direction={orderBy === "descricao" && order ? order : "asc"}
-                  onClick={() => handleRequestSort("descricao")}
-                >
-                  Descrição
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>Imagem</TableCell>
+
+              {/* NOVA COLUNA ESTOQUE */}
+              <TableCell>Estoque</TableCell>
+
               <TableCell align="center">Ações</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {paginated.map((prod) => (
-              <TableRow key={prod.id}>
-                <TableCell>{prod.nome}</TableCell>
-                <TableCell>{prod.categoria}</TableCell>
-                <TableCell>R$ {prod.preco.toFixed(2)}</TableCell>
-                <TableCell>{prod.descricao}</TableCell>
+              <TableRow key={prod.id} hover>
                 <TableCell>
                   {prod.imagem ? (
-                    <img
+                    <Box
+                      component="img"
                       src={prod.imagem}
                       alt={prod.nome}
-                      width={50}
-                      style={{ borderRadius: "4px" }}
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        objectFit: "contain",
+                        borderRadius: 1,
+                        border: "1px solid #eee",
+                        bgcolor: "#fff",
+                      }}
                     />
                   ) : (
-                    "-"
+                    <Box
+                      sx={{
+                        width: 48,
+                        height: 48,
+                        bgcolor: "#f1f5f9",
+                        borderRadius: 1,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "10px",
+                        color: "#94a3b8",
+                      }}
+                    >
+                      S/ img
+                    </Box>
                   )}
                 </TableCell>
-                <TableCell align="center">
-                  <IconButton
-                    color="primary"
+                <TableCell sx={{ fontWeight: 500 }}>{prod.nome}</TableCell>
+                <TableCell>
+                  <Chip
+                    label={prod.categoria}
                     size="small"
-                    onClick={() => handleEdit(prod)}
-                  >
-                    <Edit />
+                    variant="outlined"
+                  />
+                </TableCell>
+                <TableCell sx={{ color: "#1976d2", fontWeight: 600 }}>
+                  R$ {(prod.preco || 0).toFixed(2)}
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={`${prod.quantidade || 0} un`}
+                    color={
+                      prod.quantidade && prod.quantidade > 0
+                        ? "success"
+                        : "error"
+                    }
+                    size="small"
+                  />
+                </TableCell>
+                <TableCell align="center">
+                  <IconButton color="primary" onClick={() => handleEdit(prod)}>
+                    <Edit fontSize="small" />
                   </IconButton>
                   <IconButton
                     color="error"
-                    size="small"
                     onClick={() => handleDelete(prod.id)}
                   >
-                    <Delete />
+                    <Delete fontSize="small" />
                   </IconButton>
                 </TableCell>
               </TableRow>
             ))}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} align="center">
-                  Nenhum produto encontrado
+                <TableCell colSpan={6} align="center" sx={{ py: 6 }}>
+                  <Typography variant="body1" color="text.secondary">
+                    Nenhum produto encontrado.
+                  </Typography>
                 </TableCell>
               </TableRow>
             )}
@@ -271,11 +319,14 @@ export default function ProdutosPage() {
         }}
         maxWidth="sm"
         fullWidth
+        PaperProps={{ sx: { borderRadius: 2 } }}
       >
-        <DialogTitle>
-          {selectedProduto ? "Editar Produto" : "Cadastrar Produto"}
+        <DialogTitle
+          sx={{ fontWeight: "bold", borderBottom: "1px solid #eee", pb: 2 }}
+        >
+          {selectedProduto ? "Editar Produto" : "Novo Produto"}
         </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ pt: "24px !important" }}>
           <Modal produto={selectedProduto} onSubmit={handleSaveProduto} />
         </DialogContent>
       </Dialog>

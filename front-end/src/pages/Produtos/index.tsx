@@ -1,25 +1,34 @@
 import { useEffect, useState } from "react";
-import { Box, Button, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Typography,
+  Container,
+  CircularProgress,
+  Divider,
+} from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
+import AddIcon from "@mui/icons-material/Add";
 import type { Produto } from "../../types/types";
 import { ProdutoService } from "../../shared/api/services/ProdutoService";
+import Card from "./components/Card";
 import "./styles.scss";
-import Card from "./components/card";
 
 const produtoService = new ProdutoService();
 
 export default function Produtos() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [loading, setLoading] = useState(true);
   const [categoriaSelecionada, setCategoriaSelecionada] = useState<
     string | null
   >(null);
+
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const categoria = params.get("categoria");
-    setCategoriaSelecionada(categoria);
+    setCategoriaSelecionada(params.get("categoria"));
   }, [location.search]);
 
   useEffect(() => {
@@ -29,6 +38,8 @@ export default function Produtos() {
         setProdutos(data);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     }
     fetchProdutos();
@@ -40,52 +51,94 @@ export default function Produtos() {
     ? produtos.filter((p) => p.categoria === categoriaSelecionada)
     : produtos;
 
-  return (
-    <Box className="produtos-cards-page" py={4} px={28}>
+  if (loading) {
+    return (
       <Box
         display="flex"
-        justifyContent="space-between"
+        justifyContent="center"
         alignItems="center"
-        mb={4}
-        className="header"
+        height="60vh"
       >
-        <Typography variant="h4">Produtos</Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => navigate("/produtos/cadastrar")}
-        >
-          Cadastrar Produto
-        </Button>
+        <CircularProgress />
       </Box>
+    );
+  }
 
-      {categoriaSelecionada ? (
-        <Box mb={6}>
-          <Typography variant="h5" mb={2}>
-            {categoriaSelecionada}
+  return (
+    <Box className="produtos-page" py={6}>
+      <Container maxWidth="lg">
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          flexWrap="wrap"
+          gap={2}
+          mb={6}
+        >
+          <Typography variant="h4" fontWeight="bold" color="text.primary">
+            Nosso Catálogo
           </Typography>
-          <div className="grid-container">
-            {produtosFiltrados.map((p) => (
-              <Card key={p.id} produto={p} />
-            ))}
-          </div>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={() => navigate("/produtos/cadastrar")}
+            sx={{ borderRadius: 2, px: 3 }}
+          >
+            Cadastrar Produto
+          </Button>
         </Box>
-      ) : (
-        categorias.map((categoria) => (
-          <Box key={categoria} mb={6}>
-            <Typography variant="h5" mb={2}>
-              {categoria}
+
+        {categoriaSelecionada ? (
+          <Box mb={6} className="fade-in">
+            <Typography
+              variant="h5"
+              color="text.secondary"
+              mb={3}
+              fontWeight="600"
+            >
+              Categoria: {categoriaSelecionada}
             </Typography>
-            <div className="grid-container">
-              {produtos
-                .filter((p) => p.categoria === categoria)
-                .map((p) => (
-                  <Card key={p.id} produto={p} />
-                ))}
+            <div className="produtos-grid">
+              {produtosFiltrados.map((p) => (
+                <Card key={p.id} produto={p} />
+              ))}
             </div>
           </Box>
-        ))
-      )}
+        ) : (
+          categorias.map((categoria) => (
+            <Box key={categoria} mb={8} className="fade-in">
+              <Typography
+                variant="h5"
+                color="text.secondary"
+                mb={1}
+                fontWeight="600"
+              >
+                {categoria}
+              </Typography>
+              <Divider sx={{ mb: 4 }} />
+              <div className="produtos-grid">
+                {produtos
+                  .filter((p) => p.categoria === categoria)
+                  .map((p) => (
+                    <Card key={p.id} produto={p} />
+                  ))}
+              </div>
+            </Box>
+          ))
+        )}
+
+        {produtos.length === 0 && (
+          <Typography
+            variant="h6"
+            align="center"
+            color="text.secondary"
+            mt={10}
+          >
+            Nenhum produto encontrado.
+          </Typography>
+        )}
+      </Container>
     </Box>
   );
 }

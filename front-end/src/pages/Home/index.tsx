@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Container, CircularProgress } from "@mui/material";
 import Banner from "./components/Banner";
 import Categorias from "./components/Categorias";
 import Ofertas from "./components/Ofertas";
@@ -11,6 +11,7 @@ const produtoService = new ProdutoService();
 
 export default function Home() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchProdutos() {
@@ -19,22 +20,40 @@ export default function Home() {
         setProdutos(data);
       } catch (err) {
         console.error("Erro ao carregar produtos:", err);
+      } finally {
+        setLoading(false);
       }
     }
     fetchProdutos();
   }, []);
 
   const categoriasComProduto = Array.from(
-    new Map(produtos.map((p) => [p.categoria, p])).values()
+    new Map(produtos.map((p) => [p.categoria, p])).values(),
   );
 
-  const ofertas = produtos.slice(0, 3);
+  const ofertas = produtos.slice(0, 4);
+
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
+        <CircularProgress color="primary" />
+      </Box>
+    );
+  }
 
   return (
-    <Box width={"100%"}>
+    <Box width="100%" className="home-container">
       <Banner />
-      <Categorias categorias={categoriasComProduto} />
-      <Ofertas ofertas={ofertas} />
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Categorias categorias={categoriasComProduto} />
+        <Box my={6} />
+        <Ofertas ofertas={ofertas} />
+      </Container>
     </Box>
   );
 }

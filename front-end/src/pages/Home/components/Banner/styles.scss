@@ -1,10 +1,67 @@
 .banner-container {
+  position: relative;
   width: 100%;
-  height: 68vh;
+  height: 60vh;
+  min-height: 400px;
   background-image: url("../../../../assets/banner.png");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+  background-size: cover;
   background-position: center;
-  border-bottom: 0.25rem solid #faa302;
-  border-top: 0.25rem solid #faa302;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 10%;
+  overflow: hidden;
+
+  .banner-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.1) 100%);
+    z-index: 1;
+  }
+
+  .banner-content {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    max-width: 500px;
+    animation: slideInLeft 1s ease-out forwards;
+
+    .banner-title {
+      font-weight: 800;
+      margin-bottom: 1rem;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .banner-subtitle {
+      margin-bottom: 2rem;
+      font-weight: 300;
+      opacity: 0.9;
+    }
+
+    .banner-button {
+      background-color: #faa302;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 30px;
+      padding: 10px 30px;
+      transition: transform 0.2s;
+
+      &:hover {
+        background-color: #e09100;
+        transform: scale(1.05);
+      }
+    }
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
