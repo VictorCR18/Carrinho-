@@ -19,7 +19,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useCart } from "../../shared/components/CardContext";
+import { useCart } from "../../shared/contexts/CardContext";
 import { ProdutoService } from "../../shared/api/services/ProdutoService";
 import "./styles.scss";
 

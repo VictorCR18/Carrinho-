@@ -30,7 +30,7 @@ const produtoService = new ProdutoService();
 
 type Order = "asc" | "desc" | null;
 
-export default function ProdutosPage() {
+export default function GerenciaProdutos() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -204,7 +204,19 @@ export default function ProdutosPage() {
                 </TableSortLabel>
               </TableCell>
 
-              <TableCell>Estoque</TableCell>
+              <TableCell
+                sortDirection={
+                  orderBy === "quantidade" ? order || false : false
+                }
+              >
+                <TableSortLabel
+                  active={orderBy === "quantidade"}
+                  direction={orderBy === "quantidade" && order ? order : "asc"}
+                  onClick={() => handleRequestSort("quantidade")}
+                >
+                  Estoque
+                </TableSortLabel>
+              </TableCell>
 
               <TableCell align="center">Ações</TableCell>
             </TableRow>

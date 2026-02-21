@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
 import {
   Box,
-  Button,
   Typography,
   Container,
   CircularProgress,
   Divider,
 } from "@mui/material";
-import { useNavigate, useLocation } from "react-router-dom";
-import AddIcon from "@mui/icons-material/Add";
+import { useLocation } from "react-router-dom";
 import type { Produto } from "../../types/types";
 import { ProdutoService } from "../../shared/api/services/ProdutoService";
 import ProdutoCard from "./components/ProdutoCard";
@@ -23,7 +21,6 @@ export default function Produtos() {
     string | null
   >(null);
 
-  const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
@@ -78,15 +75,6 @@ export default function Produtos() {
           <Typography variant="h4" fontWeight="bold" color="text.primary">
             Nosso Catálogo
           </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => navigate("/produtos/cadastrar")}
-            sx={{ borderRadius: 2, px: 3 }}
-          >
-            Cadastrar Produto
-          </Button>
         </Box>
 
         {categoriaSelecionada ? (

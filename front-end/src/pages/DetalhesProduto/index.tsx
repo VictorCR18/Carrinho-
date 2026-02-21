@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { Add, Remove, ShoppingCart, ArrowBack } from "@mui/icons-material";
 import { ProdutoService } from "../../shared/api/services/ProdutoService";
-import { useCart } from "../../shared/components/CardContext";
+import { useCart } from "../../shared/contexts/CardContext";
 import type { Produto } from "../../types/types";
 import "./styles.scss";
 

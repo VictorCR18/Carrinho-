@@ -2,19 +2,20 @@ import "./App.scss";
 import NavBar from "./shared/components/NavBar";
 import Footer from "./shared/components/Footer";
 import Router from "./routes";
-import { CartProvider } from "./shared/components/CardContext";
+import { CartProvider } from "./shared/contexts/CardContext";
+import { AuthProvider } from "./shared/contexts/AuthContext";
 
 function App() {
   return (
-    <CartProvider>
-      <div className="app-container">
-        <NavBar />
-        <Router />
-        <footer className="footer">
+    <AuthProvider>
+      <CartProvider>
+        <div className="app-container">
+          <NavBar />
+          <Router />
           <Footer />
-        </footer>
-      </div>
-    </CartProvider>
+        </div>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

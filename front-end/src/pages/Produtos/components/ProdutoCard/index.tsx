@@ -14,7 +14,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useNavigate } from "react-router-dom";
 import type { Produto } from "../../../../types/types";
-import { useCart } from "../../../../shared/components/CardContext";
+import { useCart } from "../../../../shared/contexts/CardContext";
 import "./styles.scss";
 
 type Props = {
