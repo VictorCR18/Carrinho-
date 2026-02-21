@@ -16,3 +16,21 @@ model Produto {
   imagem     String?
   quantidade Int     @default(0)
 }
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Usuario {
+  id    Int    @id @default(autoincrement())
+  nome  String
+  email String @unique
+  senha String
+  role  Role   @default(USER)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@map("usuarios")
+}
