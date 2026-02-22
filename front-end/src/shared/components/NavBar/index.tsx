@@ -21,6 +21,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
+import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 
 import { useCart } from "../../contexts/CardContext";
 import { useAuth } from "../../contexts/AuthContext";
@@ -35,8 +36,8 @@ export default function NavBar() {
   const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [isLoggingOut, setIsLoggingOut] = useState(false); // Estado para o loading de logout
-  const [showLogoutAlert, setShowLogoutAlert] = useState(false); // Estado para o Toast
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showLogoutAlert, setShowLogoutAlert] = useState(false);
 
   const openUserMenu = Boolean(anchorEl);
 
@@ -48,18 +49,15 @@ export default function NavBar() {
     setAnchorEl(null);
   };
 
-  // DICA DE OURO: Função de Logout com Feedback
   const handleLogout = async () => {
-    setIsLoggingOut(true); // Começa o loading
+    setIsLoggingOut(true);
 
-    // Pequeno delay para o usuário perceber a ação (UX)
     setTimeout(() => {
       logout();
       setIsLoggingOut(false);
       handleCloseMenu();
-      setShowLogoutAlert(true); // Ativa o toast de "Até logo"
+      setShowLogoutAlert(true); 
 
-      // Redireciona após o toast ser disparado
       setTimeout(() => navigate("/"), 500);
     }, 800);
   };
@@ -202,6 +200,19 @@ export default function NavBar() {
                       </Box>,
                       <Divider key="divider" />,
                       <MenuItem
+                        key="meus-pedidos"
+                        onClick={() => {
+                          handleCloseMenu();
+                          navigate("/meus-pedidos");
+                        }}
+                      >
+                        <ReceiptLongOutlinedIcon
+                          fontSize="small"
+                          sx={{ mr: 1 }}
+                        />
+                        Meus Pedidos
+                      </MenuItem>,
+                      <MenuItem
                         key="settings"
                         onClick={() => {
                           handleCloseMenu();
@@ -236,7 +247,6 @@ export default function NavBar() {
         </Toolbar>
       </Container>
 
-      {/* Snackbar de Logout */}
       <Snackbar
         open={showLogoutAlert}
         autoHideDuration={3000}

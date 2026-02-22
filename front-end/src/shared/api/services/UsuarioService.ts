@@ -9,13 +9,11 @@ export class UsuarioService extends CrudService<Usuario> {
 
   async registrar(dadosUsuario: Partial<Usuario>) {
     const { data } = await httpClient.post("/usuarios/registrar", dadosUsuario);
-    console.log("Resposta do registro:", data);
     return data;
   }
 
   async login(credenciais: { email: string; senha?: string }) {
     const { data } = await httpClient.post("/usuarios/login", credenciais);
-    console.log("Resposta do login:", data);
 
     if (data.token) {
       localStorage.setItem("token", data.token);
@@ -23,5 +21,25 @@ export class UsuarioService extends CrudService<Usuario> {
     }
 
     return data;
+  }
+
+  async updateProfile(dados: Partial<Usuario>): Promise<Usuario> {
+    const response = await httpClient.put<Usuario>("/usuarios/perfil", dados);
+    
+    if (response.data) {
+        localStorage.setItem("usuario", JSON.stringify(response.data));
+    }
+    
+    return response.data;
+  }
+
+  async mudarSenha(senhaAtual: string, novaSenha: string): Promise<void> {
+    await httpClient.post("/usuarios/mudar-senha", { senhaAtual, novaSenha });
+  }
+
+  async excluirConta(): Promise<void> {
+    await httpClient.delete("/usuarios/perfil");
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
   }
 }

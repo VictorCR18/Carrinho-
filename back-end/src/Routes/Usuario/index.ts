@@ -5,13 +5,16 @@ import { ensureAuthenticated } from "../../shared/middlewares/ensureAuthenticate
 const router = Router();
 const controller = new UsuarioController();
 
-// Públicas
 router.post("/usuarios/registrar", controller.registrar);
 router.post("/usuarios/login", controller.login);
 
-// Privadas (Exigem login)
+// --- ROTAS DO PERFIL (O próprio usuário logado) ---
+router.put("/usuarios/perfil", ensureAuthenticated, controller.updateProfile);
+router.delete("/usuarios/perfil", ensureAuthenticated, controller.deleteSelf);
+
+// --- ROTAS ADMINISTRATIVAS (Ou busca por ID específico) ---
 router.get("/usuarios/:id", ensureAuthenticated, controller.getById);
-router.put("/usuarios/:id", ensureAuthenticated, controller.update);
+router.put("/usuarios/:id", ensureAuthenticated, controller.update); 
 
 router.get("/usuarios", ensureAuthenticated, controller.getAll);
 router.delete("/usuarios/:id", ensureAuthenticated, controller.delete);

@@ -75,6 +75,41 @@ export class UsuarioController {
     }
   }
 
+  async updateProfile(req: Request, res: Response) {
+    const id = req.user.id;
+    const { nome, email, senha } = req.body;
+
+    try {
+      const dadosParaAtualizar: any = { nome, email };
+
+      if (senha) {
+        const salt = await bcrypt.genSalt(10);
+        dadosParaAtualizar.senha = await bcrypt.hash(senha, salt);
+      }
+
+      const usuarioAtualizado = await repository.update(
+        Number(id),
+        dadosParaAtualizar,
+      );
+      const { senha: _, ...usuarioSemSenha } = usuarioAtualizado;
+
+      return res.json(usuarioSemSenha);
+    } catch (error) {
+      return res.status(500).json({ error: "Erro ao atualizar seu perfil." });
+    }
+  }
+
+  async deleteSelf(req: Request, res: Response) {
+    const id = req.user.id;
+
+    try {
+      await repository.delete(Number(id));
+      return res.json({ message: "Sua conta foi excluída com sucesso." });
+    } catch (error) {
+      return res.status(500).json({ error: "Erro ao excluir sua conta." });
+    }
+  }
+
   async getAll(req: Request, res: Response) {
     try {
       const usuarios = await repository.findAll();
@@ -82,6 +117,24 @@ export class UsuarioController {
       return res.json(usuariosSemSenha);
     } catch (error) {
       return res.status(500).json({ error: "Erro ao buscar usuários." });
+    }
+  }
+
+  async delete(req: Request, res: Response) {
+    const { id } = req.params;
+
+    if (Number(req.user.id) === Number(id)) {
+      return res.status(400).json({
+        error:
+          "Use a rota de exclusão de perfil para deletar sua própria conta.",
+      });
+    }
+
+    try {
+      await repository.delete(Number(id));
+      return res.json({ message: "Usuário excluído com sucesso." });
+    } catch (error) {
+      return res.status(404).json({ error: "Usuário não encontrado." });
     }
   }
 
@@ -125,23 +178,6 @@ export class UsuarioController {
       return res.json(usuarioSemSenha);
     } catch (error) {
       return res.status(500).json({ error: "Erro ao atualizar usuário." });
-    }
-  }
-
-  async delete(req: Request, res: Response) {
-    const { id } = req.params;
-
-    if (req.user.id === id) {
-      return res
-        .status(400)
-        .json({ error: "Você não pode excluir sua própria conta por aqui." });
-    }
-
-    try {
-      await repository.delete(Number(id));
-      return res.json({ message: "Usuário excluído com sucesso." });
-    } catch (error) {
-      return res.status(404).json({ error: "Usuário não encontrado." });
     }
   }
 }

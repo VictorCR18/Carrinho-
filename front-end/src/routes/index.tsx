@@ -8,6 +8,9 @@ import Produtos from "../pages/Produtos";
 import DetalhesProduto from "../pages/DetalhesProduto";
 import Dashboard from "../pages/Dashboard";
 
+import HistoricoCompras from "../pages/HistoricoCompras";
+import Configuracoes from "../pages/Configuracoes";
+
 import { ProtectedRoute } from "../shared/contexts/ProtectedRoute";
 
 export default function Router() {
@@ -22,6 +25,26 @@ export default function Router() {
       <Route path="/produtos/:id" element={<DetalhesProduto />} />
       <Route path="/carrinho" element={<Carrinho />} />
 
+      {/* --- ROTAS DO USUÁRIO LOGADO --- */}
+      <Route
+        path="/meus-pedidos"
+        element={
+          <ProtectedRoute>
+            <HistoricoCompras />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/configuracoes"
+        element={
+          <ProtectedRoute>
+            <Configuracoes />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* --- ROTAS ADMIN --- */}
       <Route
         path="/admin/dashboard"
         element={

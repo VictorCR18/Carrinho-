@@ -47,3 +47,27 @@ export interface ProtectedRouteProps {
   children: ReactNode;
   onlyAdmin?: boolean;
 }
+
+export interface ItemPedido {
+  id: number;
+  quantidade: number;
+  precoUnitario: number;
+  produto: {
+    nome: string;
+    imagem: string;
+    categoria: string;
+  };
+}
+
+export interface Pedido {
+  id: number;
+  total: number;
+  criadoEm: string;
+  itens: ItemPedido[];
+}
+
+export interface TabPanelProps {
+  children?: ReactNode;
+  index: number;
+  value: number;
+}
