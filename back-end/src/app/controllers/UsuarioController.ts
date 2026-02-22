@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UsuarioRepository } from "../repository/UsuarioRepository";
 import { TokenProvider } from "../../shared/providers/TokenProvider";
 import bcrypt from "bcrypt";
+import prisma from "@/config/database/connection";
 
 const repository = new UsuarioRepository();
 

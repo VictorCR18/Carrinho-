@@ -17,7 +17,7 @@ export const ensureAuthenticated = (
   const authHeader = req.headers.authorization;
 
   if (!authHeader)
-    return res.status(401).json({ error: "Token não fornecido" });
+    return res.status(401).json({ error: "Faça login antes de continuar." });
 
   const [, token] = authHeader.split(" ");
   const decoded = TokenProvider.verificarToken(token);

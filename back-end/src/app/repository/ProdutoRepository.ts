@@ -6,8 +6,27 @@ export class ProdutoRepository {
     return prisma.produto.findMany();
   }
 
+  async findByUsuario(usuarioId: number) {
+    return prisma.pedido.findMany({
+      where: { usuarioId },
+      include: {
+        itens: {
+          include: {
+            produto: true,
+          },
+        },
+      },
+      orderBy: {
+        criadoEm: "desc",
+      },
+    });
+  }
+
   async findById(id: number) {
-    return prisma.produto.findUnique({ where: { id } });
+    return prisma.pedido.findUnique({
+      where: { id },
+      include: { itens: true },
+    });
   }
 
   async create(data: Produto) {

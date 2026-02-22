@@ -16,6 +16,8 @@ model Produto {
   imagem     String?
   quantidade Int     @default(0)
 
+  itens ItemPedido[]
+
   @@map("produtos")
 }
 
@@ -25,14 +27,41 @@ enum Role {
 }
 
 model Usuario {
-  id    Int    @id @default(autoincrement())
-  nome  String
-  email String @unique
-  senha String
-  role  Role   @default(USER)
-
+  id           Int      @id @default(autoincrement())
+  nome         String
+  email        String   @unique
+  senha        String
+  role         Role     @default(USER)
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
+  pedidos Pedido[]
+
   @@map("usuarios")
+}
+
+model Pedido {
+  id           Int      @id @default(autoincrement())
+  usuarioId    Int
+  total        Float
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  usuario Usuario      @relation(fields: [usuarioId], references: [id])
+  itens   ItemPedido[]
+
+  @@map("pedidos")
+}
+
+model ItemPedido {
+  id            Int   @id @default(autoincrement())
+  pedidoId      Int
+  produtoId     Int
+  quantidade    Int
+  precoUnitario Float
+
+  pedido  Pedido  @relation(fields: [pedidoId], references: [id])
+  produto Produto @relation(fields: [produtoId], references: [id])
+
+  @@map("itens_pedido")
 }

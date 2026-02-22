@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { ProdutoRepository } from "../repository/ProdutoRepository";
+import prisma from "@/config/database/connection";
 
 const repository = new ProdutoRepository();
 
@@ -44,55 +45,61 @@ export class ProdutoController {
 
   async checkout(req: Request, res: Response) {
     const { itens } = req.body;
-    const usuarioId = req.user?.id;
-
-    if (!itens || !Array.isArray(itens) || itens.length === 0) {
-      return res
-        .status(400)
-        .json({ error: "Nenhum item enviado no carrinho." });
-    }
+    const usuarioId = req.user.id;
 
     try {
-      const validacoes = await Promise.all(
-        itens.map(async (item) => {
-          const produto = await repository.findById(Number(item.id));
-          return { item, produto };
-        }),
-      );
+      const resultado = await prisma.$transaction(async (tx) => {
+        let totalGeral = 0;
 
-      for (const { item, produto } of validacoes) {
-        if (!produto) {
-          return res
-            .status(404)
-            .json({ error: `O produto com ID ${item.id} não existe.` });
-        }
-        if (produto.quantidade < item.quantidade) {
-          return res
-            .status(400)
-            .json({ error: `Estoque insuficiente para: ${produto.nome}.` });
-        }
-      }
+        const pedido = await tx.pedido.create({
+          data: {
+            usuarioId: Number(usuarioId),
+            total: 0,
+          },
+        });
 
-      const produtosAtualizados = await Promise.all(
-        validacoes.map(async ({ item, produto }) => {
-          return await repository.update(Number(item.id), {
-            ...produto!, 
-            quantidade: produto!.quantidade - item.quantidade,
-            descricao: produto!.descricao ?? undefined,
-            imagem: produto!.imagem ?? undefined,
+        for (const item of itens) {
+          const produto = await tx.produto.findUnique({
+            where: { id: item.id },
           });
-        }),
-      );
 
-      res.status(200).json({
-        message: `Compra finalizada com sucesso pelo usuário ${usuarioId}!`,
-        produtos: produtosAtualizados,
+          if (!produto || produto.quantidade < item.quantidade) {
+            throw new Error(
+              `Estoque insuficiente: ${produto?.nome || "Produto desconhecido"}`,
+            );
+          }
+
+          await tx.produto.update({
+            where: { id: produto.id },
+            data: { quantidade: produto.quantidade - item.quantidade },
+            include: {
+              itens: {
+                include: { produto: true },
+              },
+            },
+          });
+
+          await tx.itemPedido.create({
+            data: {
+              pedidoId: pedido.id,
+              produtoId: produto.id,
+              quantidade: item.quantidade,
+              precoUnitario: produto.preco,
+            },
+          });
+
+          totalGeral += produto.preco * item.quantidade;
+        }
+
+        return await tx.pedido.update({
+          where: { id: pedido.id },
+          data: { total: totalGeral },
+        });
       });
-    } catch (err) {
-      console.error(err);
-      res
-        .status(500)
-        .json({ error: "Erro ao processar a finalização da compra." });
+
+      res.status(201).json(resultado);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
     }
   }
 }
