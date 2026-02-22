@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { ProdutoRepository } from "../repository/ProdutoRepository";
-import prisma from "@/config/database/connection";
+import prisma from "../../config/database/connection";
 
 const repository = new ProdutoRepository();
 

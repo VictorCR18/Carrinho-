@@ -22,11 +22,13 @@ import { useState } from "react";
 import { useCart } from "../../shared/contexts/CardContext";
 import { ProdutoService } from "../../shared/api/services/ProdutoService";
 import "./styles.scss";
+import { useAuth } from "../../shared/contexts/AuthContext";
 
 const produtoService = new ProdutoService();
 
 export default function Carrinho() {
   const { cart, total, addToCart, removeFromCart, clearCart } = useCart();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -45,12 +47,26 @@ export default function Carrinho() {
   };
 
   const handleFinalizarCompra = async () => {
+    if (!isAuthenticated) {
+      setSnackbar({
+        open: true,
+        message: "Você precisa estar logado para finalizar a compra!",
+        severity: "error",
+      });
+
+      setTimeout(() => {
+        navigate("/login", { state: { from: "/carrinho" } });
+      }, 1500);
+      return;
+    }
+
     setLoading(true);
     try {
       const itensCheckout = cart.map((produto) => ({
         id: produto.id!,
         quantidade: produto.quantidade,
       }));
+
       await produtoService.checkout(itensCheckout);
 
       setSnackbar({
@@ -60,17 +76,12 @@ export default function Carrinho() {
       });
 
       clearCart();
-
-      setTimeout(() => {
-        navigate("/");
-      }, 2500);
+      setTimeout(() => navigate("/"), 2500);
     } catch (error: any) {
       console.error("Erro no checkout:", error);
       setSnackbar({
         open: true,
-        message:
-          error.response?.data?.error ||
-          "Erro ao finalizar a compra. Tente novamente mais tarde.",
+        message: error.response?.data?.error || "Erro ao finalizar a compra.",
         severity: "error",
       });
       setLoading(false);
