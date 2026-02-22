@@ -1,13 +1,11 @@
 import { Request, Response } from "express";
 import { UsuarioRepository } from "../repository/UsuarioRepository";
+import { TokenProvider } from "../../shared/providers/TokenProvider";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 
 const repository = new UsuarioRepository();
-const JWT_SECRET = process.env.JWT_SECRET || "chave_padrao_desenvolvimento";
 
 export class UsuarioController {
-
   async registrar(req: Request, res: Response) {
     const { nome, email, senha, role } = req.body;
 
@@ -30,15 +28,16 @@ export class UsuarioController {
         nome,
         email,
         senha: senhaCriptografada,
-        role: role || "USER", 
+        role: role || "USER",
       });
 
       const { senha: _, ...usuarioSemSenha } = novoUsuario;
-
-      res.status(201).json(usuarioSemSenha);
+      return res.status(201).json(usuarioSemSenha);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Erro interno ao registrar usuário." });
+      return res
+        .status(500)
+        .json({ error: "Erro interno ao registrar usuário." });
     }
   }
 
@@ -53,31 +52,96 @@ export class UsuarioController {
 
     try {
       const usuario = await repository.findByEmail(email);
-      if (!usuario) {
+
+      if (!usuario || !(await bcrypt.compare(senha, usuario.senha))) {
         return res.status(401).json({ error: "E-mail ou senha inválidos." });
       }
 
-      const senhaValida = await bcrypt.compare(senha, usuario.senha);
-      if (!senhaValida) {
-        return res.status(401).json({ error: "E-mail ou senha inválidos." });
-      }
-
-      const token = jwt.sign(
-        { id: usuario.id, role: usuario.role },
-        JWT_SECRET,
-        { expiresIn: "1d" },
-      );
+      const token = TokenProvider.gerarToken({
+        id: usuario.id,
+        role: usuario.role,
+      });
 
       const { senha: _, ...usuarioSemSenha } = usuario;
 
-      res.status(200).json({
+      return res.status(200).json({
         message: "Login realizado com sucesso!",
         token,
         usuario: usuarioSemSenha,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Erro interno ao fazer login." });
+      return res.status(500).json({ error: "Erro interno ao fazer login." });
+    }
+  }
+
+  async getAll(req: Request, res: Response) {
+    try {
+      const usuarios = await repository.findAll();
+      const usuariosSemSenha = usuarios.map(({ senha, ...resto }) => resto);
+      return res.json(usuariosSemSenha);
+    } catch (error) {
+      return res.status(500).json({ error: "Erro ao buscar usuários." });
+    }
+  }
+
+  async getById(req: Request, res: Response) {
+    const { id } = req.params;
+    try {
+      const usuario = await repository.findById(Number(id));
+      if (!usuario) {
+        return res.status(404).json({ error: "Usuário não encontrado." });
+      }
+      const { senha: _, ...usuarioSemSenha } = usuario;
+      return res.json(usuarioSemSenha);
+    } catch (error) {
+      return res.status(500).json({ error: "Erro ao buscar usuário." });
+    }
+  }
+
+  async update(req: Request, res: Response) {
+    const { id } = req.params;
+    const { nome, email, senha, role } = req.body;
+
+    try {
+      const usuarioExistente = await repository.findById(Number(id));
+      if (!usuarioExistente) {
+        return res.status(404).json({ error: "Usuário não encontrado." });
+      }
+
+      const dadosParaAtualizar: any = { nome, email, role };
+
+      if (senha) {
+        const salt = await bcrypt.genSalt(10);
+        dadosParaAtualizar.senha = await bcrypt.hash(senha, salt);
+      }
+
+      const usuarioAtualizado = await repository.update(
+        Number(id),
+        dadosParaAtualizar,
+      );
+      const { senha: _, ...usuarioSemSenha } = usuarioAtualizado;
+
+      return res.json(usuarioSemSenha);
+    } catch (error) {
+      return res.status(500).json({ error: "Erro ao atualizar usuário." });
+    }
+  }
+
+  async delete(req: Request, res: Response) {
+    const { id } = req.params;
+
+    if (req.user.id === id) {
+      return res
+        .status(400)
+        .json({ error: "Você não pode excluir sua própria conta por aqui." });
+    }
+
+    try {
+      await repository.delete(Number(id));
+      return res.json({ message: "Usuário excluído com sucesso." });
+    } catch (error) {
+      return res.status(404).json({ error: "Usuário não encontrado." });
     }
   }
 }

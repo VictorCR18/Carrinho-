@@ -1,16 +1,19 @@
 import { Router } from "express";
 import { UsuarioController } from "../../app/controllers/UsuarioController";
+import { ensureAuthenticated } from "../../shared/middlewares/ensureAuthenticated";
 
 const router = Router();
 const controller = new UsuarioController();
 
+// Públicas
 router.post("/usuarios/registrar", controller.registrar);
 router.post("/usuarios/login", controller.login);
 
-// router.get("/usuarios", controller.getAll);
-// router.get("/usuarios/:id", controller.getById);
-// // Opcional: router.post("/usuarios", controller.create); -> Geralmente o "registrar" já faz esse papel
-// router.put("/usuarios/:id", controller.update);
-// router.delete("/usuarios/:id", controller.delete);
+// Privadas (Exigem login)
+router.get("/usuarios/:id", ensureAuthenticated, controller.getById);
+router.put("/usuarios/:id", ensureAuthenticated, controller.update);
+
+router.get("/usuarios", ensureAuthenticated, controller.getAll);
+router.delete("/usuarios/:id", ensureAuthenticated, controller.delete);
 
 export default router;

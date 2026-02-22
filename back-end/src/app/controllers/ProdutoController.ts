@@ -44,6 +44,7 @@ export class ProdutoController {
 
   async checkout(req: Request, res: Response) {
     const { itens } = req.body;
+    const usuarioId = req.user?.id;
 
     if (!itens || !Array.isArray(itens) || itens.length === 0) {
       return res
@@ -52,41 +53,43 @@ export class ProdutoController {
     }
 
     try {
-      for (const item of itens) {
-        const produto = await repository.findById(Number(item.id));
+      const validacoes = await Promise.all(
+        itens.map(async (item) => {
+          const produto = await repository.findById(Number(item.id));
+          return { item, produto };
+        }),
+      );
+
+      for (const { item, produto } of validacoes) {
         if (!produto) {
           return res
             .status(404)
-            .json({ error: `O produto com ID ${item.id} não foi encontrado.` });
+            .json({ error: `O produto com ID ${item.id} não existe.` });
         }
         if (produto.quantidade < item.quantidade) {
           return res
             .status(400)
-            .json({
-              error: `Estoque insuficiente para o produto: ${produto.nome}.`,
-            });
+            .json({ error: `Estoque insuficiente para: ${produto.nome}.` });
         }
       }
 
-      const produtosAtualizados = [];
-      for (const item of itens) {
-        const produto = await repository.findById(Number(item.id));
-        if (produto) {
-          const atualizado = await repository.update(Number(item.id), {
-            ...produto,
-            descricao: produto.descricao ?? undefined,
-            imagem: produto.imagem ?? undefined,
-            quantidade: produto.quantidade - item.quantidade,
+      const produtosAtualizados = await Promise.all(
+        validacoes.map(async ({ item, produto }) => {
+          return await repository.update(Number(item.id), {
+            ...produto!, 
+            quantidade: produto!.quantidade - item.quantidade,
+            descricao: produto!.descricao ?? undefined,
+            imagem: produto!.imagem ?? undefined,
           });
-          produtosAtualizados.push(atualizado);
-        }
-      }
+        }),
+      );
 
       res.status(200).json({
-        message: "Compra finalizada com sucesso! Estoques atualizados.",
+        message: `Compra finalizada com sucesso pelo usuário ${usuarioId}!`,
         produtos: produtosAtualizados,
       });
     } catch (err) {
+      console.error(err);
       res
         .status(500)
         .json({ error: "Erro ao processar a finalização da compra." });
