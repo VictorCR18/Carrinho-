@@ -11,6 +11,7 @@ router.post("/usuarios/login", controller.login);
 // --- ROTAS DO PERFIL (O próprio usuário logado) ---
 router.put("/usuarios/perfil", ensureAuthenticated, controller.updateProfile);
 router.delete("/usuarios/perfil", ensureAuthenticated, controller.deleteSelf);
+router.post("/usuarios/mudar-senha", ensureAuthenticated, controller.mudarSenha);
 
 // --- ROTAS ADMINISTRATIVAS (Ou busca por ID específico) ---
 router.get("/usuarios/:id", ensureAuthenticated, controller.getById);

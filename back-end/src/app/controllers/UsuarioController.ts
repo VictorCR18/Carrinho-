@@ -180,4 +180,39 @@ export class UsuarioController {
       return res.status(500).json({ error: "Erro ao atualizar usuário." });
     }
   }
+
+  async mudarSenha(req: Request, res: Response) {
+    const id = req.user.id;
+    const { senhaAtual, novaSenha } = req.body;
+
+    if (!senhaAtual || !novaSenha) {
+      return res.status(400).json({ error: "As senhas são obrigatórias." });
+    }
+
+    try {
+      const usuario = await repository.findById(Number(id));
+      if (!usuario) {
+        return res.status(404).json({ error: "Usuário não encontrado." });
+      }
+
+      const senhaValida = await bcrypt.compare(senhaAtual, usuario.senha);
+      if (!senhaValida) {
+        return res.status(401).json({ error: "A senha atual está incorreta." });
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const novaSenhaCriptografada = await bcrypt.hash(novaSenha, salt);
+
+      await repository.update(Number(id), {
+        senha: novaSenhaCriptografada,
+        nome: "",
+        email: "",
+        role: "USER"
+      });
+
+      return res.json({ message: "Senha atualizada com sucesso!" });
+    } catch (error) {
+      return res.status(500).json({ error: "Erro ao atualizar senha." });
+    }
+  }
 }
