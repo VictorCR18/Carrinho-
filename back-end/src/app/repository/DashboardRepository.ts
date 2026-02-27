@@ -47,28 +47,35 @@ export class DashboardRepository {
   }
 
   async getProdutosMenosVendidos(take: number = 5) {
-    const produtosMenosVendidos = await prisma.produto.findMany({
+    const produtosNoEstoque = await prisma.produto.findMany({
       where: { quantidade: { gt: 0 } },
-      orderBy: { itens: { _count: "asc" } },
-      take,
+      select: {
+        id: true,
+        nome: true,
+        quantidade: true,
+        itens: {
+          select: { quantidade: true },
+        },
+      },
     });
 
-    const encalhadosFormatados = await Promise.all(
-      produtosMenosVendidos.map(async (p) => {
-        const somaItens = await prisma.itemPedido.aggregate({
-          where: { produtoId: p.id },
-          _sum: { quantidade: true },
-        });
-        return {
-          id: p.id,
-          nome: p.nome,
-          estoque: p.quantidade,
-          vendas: somaItens._sum.quantidade || 0,
-        };
-      }),
-    );
+    const produtosComVendas = produtosNoEstoque.map((p) => {
+      const totalVendido = p.itens.reduce(
+        (soma, item) => soma + item.quantidade,
+        0,
+      );
 
-    return encalhadosFormatados;
+      return {
+        id: p.id,
+        nome: p.nome,
+        estoque: p.quantidade,
+        vendas: totalVendido,
+      };
+    });
+
+    produtosComVendas.sort((a, b) => a.vendas - b.vendas);
+
+    return produtosComVendas.slice(0, take);
   }
 
   async getPedidosAposData(dataLimite: Date) {
