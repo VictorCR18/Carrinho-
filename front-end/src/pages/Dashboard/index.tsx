@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   Box,
   Container,
@@ -13,6 +14,7 @@ import {
   ListItemAvatar,
   ListItemText,
   useTheme,
+  CircularProgress,
 } from "@mui/material";
 import {
   TrendingUp,
@@ -35,27 +37,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const dadosVendasMes = [
-  { nome: "Jan", vendas: 4000, lucro: 2400 },
-  { nome: "Fev", vendas: 3000, lucro: 1398 },
-  { nome: "Mar", vendas: 2000, lucro: 9800 },
-  { nome: "Abr", vendas: 2780, lucro: 3908 },
-  { nome: "Mai", vendas: 1890, lucro: 4800 },
-  { nome: "Jun", vendas: 2390, lucro: 3800 },
-  { nome: "Jul", vendas: 3490, lucro: 4300 },
-];
-
-const produtosMaisVendidos = [
-  { id: 1, nome: "Smartphone X", vendas: 124, preco: 2999 },
-  { id: 2, nome: "Fritadeira AirFryer", vendas: 98, preco: 450 },
-  { id: 3, nome: "Fone Bluetooth", vendas: 85, preco: 150 },
-];
-
-const produtosMenosVendidos = [
-  { id: 4, nome: "Capa de Chuva", vendas: 2, estoque: 50 },
-  { id: 5, nome: "Acessório Obsoleto", vendas: 1, estoque: 15 },
-  { id: 6, nome: "Produto Teste", vendas: 0, estoque: 5 },
-];
+// 1. Importando o Service que criamos
+import { DashboardService } from "../../shared/api/services/DashboardService";
+import type { DashboardData } from "../../types/types";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -72,6 +56,52 @@ const itemVariants = {
 
 export default function Dashboard() {
   const theme = useTheme();
+
+  // 2. Criando os estados para guardar os dados da API
+  const [loading, setLoading] = useState(true);
+  const [dados, setDados] = useState<DashboardData>({
+    kpis: {
+      vendasTotais: 0,
+      lucroEstimado: 0,
+      produtosEmEstoque: 0,
+      itensEmAlerta: 0,
+    },
+    produtosMaisVendidos: [],
+    produtosMenosVendidos: [],
+    dadosVendasMes: [],
+  });
+
+  const dashboardService = new DashboardService();
+
+  // 3. Buscando os dados quando a tela carrega
+  useEffect(() => {
+    const carregarDados = async () => {
+      try {
+        const resposta = await dashboardService.getDados();
+        setDados(resposta);
+      } catch (error) {
+        console.error("Erro ao carregar os dados do dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarDados();
+  }, []);
+
+  // 4. Tela de loading enquanto espera o banco responder
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight="100vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -106,25 +136,32 @@ export default function Dashboard() {
             {[
               {
                 titulo: "Vendas Totais",
-                valor: "R$ 45.231",
+                // Formatando para Moeda Brasileira (BRL)
+                valor: dados.kpis.vendasTotais.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                }),
                 icone: <TrendingUp />,
                 cor: theme.palette.primary.main,
               },
               {
                 titulo: "Lucro Estimado",
-                valor: "R$ 12.450",
+                valor: dados.kpis.lucroEstimado.toLocaleString("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                }),
                 icone: <AttachMoney />,
                 cor: theme.palette.success.main,
               },
               {
                 titulo: "Produtos em Estoque",
-                valor: "1.204",
+                valor: dados.kpis.produtosEmEstoque.toString(),
                 icone: <Inventory />,
                 cor: theme.palette.info.main,
               },
               {
                 titulo: "Itens em Alerta",
-                valor: "12",
+                valor: dados.kpis.itensEmAlerta.toString(),
                 icone: <WarningAmber />,
                 cor: theme.palette.warning.main,
               },
@@ -173,7 +210,6 @@ export default function Dashboard() {
 
           {/* 2. ÁREA DOS GRÁFICOS */}
           <Grid container spacing={3} mb={6}>
-            {/* Gráfico de Vendas (Linha) */}
             <Grid size={{ xs: 12, lg: 8 }}>
               <motion.div variants={itemVariants} style={{ height: "100%" }}>
                 <Paper
@@ -191,8 +227,7 @@ export default function Dashboard() {
                   <Box sx={{ width: "100%", height: 300 }}>
                     <ResponsiveContainer>
                       <LineChart
-                        data={dadosVendasMes}
-                        // 1. Aumentamos a margem 'left' para 20
+                        data={dados.dadosVendasMes} // DADOS REAIS
                         margin={{ top: 5, right: 20, bottom: 5, left: 20 }}
                       >
                         <CartesianGrid
@@ -253,7 +288,7 @@ export default function Dashboard() {
                   <Box sx={{ width: "100%", height: 300 }}>
                     <ResponsiveContainer>
                       <BarChart
-                        data={dadosVendasMes}
+                        data={dados.dadosVendasMes} // DADOS REAIS
                         margin={{ top: 5, right: 0, bottom: 5, left: 0 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -262,11 +297,7 @@ export default function Dashboard() {
                           axisLine={false}
                           tickLine={false}
                         />
-                        <YAxis
-                          axisLine={false}
-                          tickLine={false}
-                          width={50} // 2. ADICIONADO: Garante que os números puros caibam
-                        />
+                        <YAxis axisLine={false} tickLine={false} width={50} />
                         <Tooltip cursor={{ fill: "#f5f5f5" }} />
                         <Bar
                           dataKey="vendas"
@@ -306,7 +337,7 @@ export default function Dashboard() {
                     </Typography>
                   </Box>
                   <List disablePadding>
-                    {produtosMaisVendidos.map((prod, index) => (
+                    {dados.produtosMaisVendidos.map((prod, index) => (
                       <div key={prod.id}>
                         <ListItem sx={{ py: 2 }}>
                           <ListItemAvatar>
@@ -325,7 +356,7 @@ export default function Dashboard() {
                                 {prod.nome}
                               </Typography>
                             }
-                            secondary={`Preço: R$ ${prod.preco.toFixed(2)}`}
+                            secondary={`Preço: R$ ${Number(prod.preco).toFixed(2)}`}
                           />
                           <Typography
                             variant="h6"
@@ -335,9 +366,20 @@ export default function Dashboard() {
                             {prod.vendas} un
                           </Typography>
                         </ListItem>
-                        {index < produtosMaisVendidos.length - 1 && <Divider />}
+                        {index < dados.produtosMaisVendidos.length - 1 && (
+                          <Divider />
+                        )}
                       </div>
                     ))}
+                    {dados.produtosMaisVendidos.length === 0 && (
+                      <Typography
+                        textAlign="center"
+                        p={3}
+                        color="text.secondary"
+                      >
+                        Nenhuma venda registrada.
+                      </Typography>
+                    )}
                   </List>
                 </Paper>
               </motion.div>
@@ -366,7 +408,7 @@ export default function Dashboard() {
                     </Typography>
                   </Box>
                   <List disablePadding>
-                    {produtosMenosVendidos.map((prod, index) => (
+                    {dados.produtosMenosVendidos.map((prod, index) => (
                       <div key={prod.id}>
                         <ListItem sx={{ py: 2 }}>
                           <ListItemAvatar>
@@ -387,14 +429,23 @@ export default function Dashboard() {
                             color="error.main"
                             fontWeight="bold"
                           >
-                            {prod.vendas} un
+                            {prod.vendas} un vendidas
                           </Typography>
                         </ListItem>
-                        {index < produtosMenosVendidos.length - 1 && (
+                        {index < dados.produtosMenosVendidos.length - 1 && (
                           <Divider />
                         )}
                       </div>
                     ))}
+                    {dados.produtosMenosVendidos.length === 0 && (
+                      <Typography
+                        textAlign="center"
+                        p={3}
+                        color="text.secondary"
+                      >
+                        Nenhum produto encalhado!
+                      </Typography>
+                    )}
                   </List>
                 </Paper>
               </motion.div>

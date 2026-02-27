@@ -71,3 +71,15 @@ export interface TabPanelProps {
   index: number;
   value: number;
 }
+
+export interface DashboardData {
+  kpis: {
+    vendasTotais: number;
+    lucroEstimado: number;
+    produtosEmEstoque: number;
+    itensEmAlerta: number;
+  };
+  produtosMaisVendidos: any[];
+  produtosMenosVendidos: any[];
+  dadosVendasMes: any[];
+}
