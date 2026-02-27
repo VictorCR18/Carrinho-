@@ -1,6 +1,6 @@
 import { ensureAuthenticated } from "../../shared/middlewares/ensureAuthenticated";
 import { DashboardController } from "../../app/controllers/DashboardController";
-import { Router } from "express";
+import e, { Router } from "express";
 
 export const router = Router();
 
@@ -11,3 +11,5 @@ router.get(
   ensureAuthenticated,
   dashboardController.getResumo,
 );
+
+export default router;
