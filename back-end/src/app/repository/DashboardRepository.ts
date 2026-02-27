@@ -51,21 +51,34 @@ export class DashboardRepository {
       where: { quantidade: { gt: 0 } },
       orderBy: { itens: { _count: "asc" } },
       take,
-      include: { _count: { select: { itens: true } } },
     });
 
-    return produtosMenosVendidos.map((p) => ({
-      id: p.id,
-      nome: p.nome,
-      estoque: p.quantidade,
-      vendas: p._count.itens, 
-    }));
+    const encalhadosFormatados = await Promise.all(
+      produtosMenosVendidos.map(async (p) => {
+        const somaItens = await prisma.itemPedido.aggregate({
+          where: { produtoId: p.id },
+          _sum: { quantidade: true },
+        });
+        return {
+          id: p.id,
+          nome: p.nome,
+          estoque: p.quantidade,
+          vendas: somaItens._sum.quantidade || 0,
+        };
+      }),
+    );
+
+    return encalhadosFormatados;
   }
 
   async getPedidosAposData(dataLimite: Date) {
     return await prisma.pedido.findMany({
       where: { criadoEm: { gte: dataLimite } },
-      select: { total: true, criadoEm: true },
+      select: {
+        total: true,
+        criadoEm: true,
+        itens: { select: { quantidade: true } },
+      },
     });
   }
 }

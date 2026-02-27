@@ -12,10 +12,13 @@ export class DashboardController {
         await repository.getProdutosMenosVendidos(5);
 
       const dataLimite = new Date();
-      dataLimite.setMonth(dataLimite.getMonth() - 6);
+      dataLimite.setMonth(dataLimite.getMonth() - 5);
+      dataLimite.setDate(1);
+      dataLimite.setHours(0, 0, 0, 0);
+
       const pedidosRecentes = await repository.getPedidosAposData(dataLimite);
 
-      const meses = [
+      const mesesNome = [
         "Jan",
         "Fev",
         "Mar",
@@ -29,21 +32,39 @@ export class DashboardController {
         "Nov",
         "Dez",
       ];
-      const mapaMeses: Record<string, { vendas: number; lucro: number }> = {};
+
+      const ultimos6Meses: Array<{
+        nome: string;
+        vendas: number;
+        lucro: number;
+        volume: number;
+      }> = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        ultimos6Meses.push({
+          nome: mesesNome[d.getMonth()],
+          vendas: 0,
+          lucro: 0,
+          volume: 0,
+        });
+      }
 
       pedidosRecentes.forEach((pedido) => {
-        const mesNome = meses[pedido.criadoEm.getMonth()];
-        if (!mapaMeses[mesNome]) mapaMeses[mesNome] = { vendas: 0, lucro: 0 };
+        const mesNome = mesesNome[pedido.criadoEm.getMonth()];
+        const mesIndex = ultimos6Meses.findIndex((m) => m.nome === mesNome);
 
-        mapaMeses[mesNome].vendas += pedido.total;
-        mapaMeses[mesNome].lucro += pedido.total * 0.3;
+        if (mesIndex !== -1) {
+          ultimos6Meses[mesIndex].vendas += pedido.total;
+          ultimos6Meses[mesIndex].lucro += pedido.total * 0.3;
+
+          const qtdItens = pedido.itens.reduce(
+            (acc, item) => acc + item.quantidade,
+            0,
+          );
+          ultimos6Meses[mesIndex].volume += qtdItens;
+        }
       });
-
-      const dadosVendasMes = Object.keys(mapaMeses).map((mes) => ({
-        nome: mes,
-        vendas: mapaMeses[mes].vendas,
-        lucro: mapaMeses[mes].lucro,
-      }));
 
       return res.json({
         kpis: {
@@ -54,7 +75,7 @@ export class DashboardController {
         },
         produtosMaisVendidos,
         produtosMenosVendidos,
-        dadosVendasMes,
+        dadosVendasMes: ultimos6Meses,
       });
     } catch (error) {
       console.error(error);
