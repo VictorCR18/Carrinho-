@@ -288,7 +288,7 @@ export default function Dashboard() {
                   <Box sx={{ width: "100%", height: 300 }}>
                     <ResponsiveContainer>
                       <BarChart
-                        data={dados.dadosVendasMes} // DADOS REAIS
+                        data={dados.dadosVendasMes}
                         margin={{ top: 5, right: 0, bottom: 5, left: 0 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -297,7 +297,12 @@ export default function Dashboard() {
                           axisLine={false}
                           tickLine={false}
                         />
-                        <YAxis axisLine={false} tickLine={false} width={50} />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          width={50}
+                          allowDecimals={false}
+                        />
                         <Tooltip cursor={{ fill: "#f5f5f5" }} />
                         <Bar
                           dataKey="vendas"
